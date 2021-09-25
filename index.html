@@ -5,6 +5,11 @@
 	<!-- <link rel="stylesheet" href="../css/version3.css"> -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<script src="https://use.fontawesome.com/aac5c45839.js"></script>
+	<style>
+		input {
+		width: 110px;
+		}
+	</style>
 </head>
 <body onload="enableEditMode();">
 	<div>
@@ -28,11 +33,11 @@
 			<option value="H6">H6</option>			
 		</select>
 		<button onclick="execCmd('insertHorizontalRule');">HR</button>
-		<button onclick="execCmd('createLink', prompt('Enter link here: ', 'https://'));"><i class="fa fa-link" ></i></button>
+		<button onclick="execCmd('createLink', prompt('Enter link here: ', 'https\://'));"><i class="fa fa-link" ></i></button>
 		<button onclick="execCmd('unlink');"><i class="fa fa-unlink" ></i></button>
 		<button onclick="toggleSource();"><i class="fa fa-code" ></i></button>
-		<button onclick="execCmd('insertImage', prompt('Enter the image URL: ', ''));"><i class="fa fa-file-image-o" ></i></button>
-		<button onclick="toggleEdit('')">Toggle Edit</button>
+		<!-- <button onclick="execCmd('insertImage', prompt('Enter the image URL: ', ''));"><i class="fa fa-file-image-o" ></i></button> -->
+		<input onclick="execCmdImage();" type="file" name="imgFile" value="img" accept="image/*">
 		<br/>
 		<button onclick="execCmd('indent');"><i class="fa fa-indent"></i></button>
 		<button onclick="execCmd('outdent');"><i class="fa fa-dedent"></i></button>
@@ -58,10 +63,13 @@
 		<button onclick="execCmd('redo');"><i class="fa fa-repeat"></i></button>
 		Font Color: <input type="color" onchange="execCommandWithArg('foreColor', this.value);"/>
 		Background: <input type="color" onchange="execCommandWithArg('hiliteColor', this.value);"/>
-		<button onclick="execCmd('selectAll');">Select All</button>
 	</div>
 	<iframe name="textField" style="width: 700px; height: 400px;"></iframe>
-	
+	<div>
+		<button onclick="toggleEdit('')">Toggle Edit</button>
+		<button onclick="execCmd('selectAll');">Select All</button>
+		<input type="submit" name="submitFile" id="subFile" value="Submit" onclick="">
+	</div>
 	<script type="text/javascript">
 		var showCode = false;
 		var isInEditMode = true;
@@ -73,6 +81,9 @@
 			textField.document.execCommand(command, false, null);
 		}
 		function execCmdLink() {
+			
+		}
+		function execCmdImage() {
 			
 		}
 		function execCommandWithArg(command, arg) {
@@ -97,6 +108,9 @@
 				textField.document.designMode = "On"
 				isIneditMode = true;
 			}
+		}
+		function submitFile() {
+
 		}
 	</script>
 </body>

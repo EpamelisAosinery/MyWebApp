@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Version 4 Rich Text Editor</title>
+	<!-- <link rel="stylesheet" href="../css/version3.css"> -->
+	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+	<style>
+		input {
+		width: 110px;
+		}
+	</style>
+	<script src="https://use.fontawesome.com/aac5c45839.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+</head>
+<body onload="enableEditMode();">
+	<div>
+		<select onchange="execCommandWithArg('fontName', this.value);">
+			<option value="San Serif">San Serif</option>			
+			<option value="Arial">Arial</option>
+			<option value="Comic Sans MS">Comic Sans MS</option>			
+			<option value="Courier">Courier</option>			
+			<option value="Georgia">Georgia</option>			
+			<option value="Times New Roman">Times New Roman</option>			
+			<option value="Verdana">Verdana</option>	
+			<option value="Monospace">Monospace</option>		
+		</select>
+		<select onchange="execCommandWithArg('formatBlock', this.value);">
+			<option value="H1">Heading H1</option>			
+			<option value="H2">Heading H2</option>			
+			<option value="H3">Heading H3</option>			
+			<option value="H4">Heading H4</option>			
+			<option value="H5">Heading H5</option>			
+			<option value="H6">Heading H6</option>			
+		</select>
+		<select onchange="execCommandWithArg('fontSize', this.value);">
+			<option value="3">Normal</option>			
+			<option value="1">Extra Small</option>			
+			<option value="2">Small</option>			
+			<option value="4">Medium</option>			
+			<option value="5">Large</option>			
+			<option value="6">Huge</option>	
+		</select>
+		<button onclick="execCmd('bold');"><i class="fa fa-bold"></i></button>
+		<button onclick="execCmd('italic');"><i class="fa fa-italic"></i></button>
+		<button onclick="execCmd('underline');"><i class="fa fa-underline"></i></button>
+		<button onclick="execCmd('strikeThrough');"><i class="fa fa-strikethrough"></i></button>
+		<button onclick="execCmd('justifyLeft');"><i class="fa fa-align-left"></i></button>
+		<button onclick="execCmd('justifyCenter');"><i class="fa fa-align-center"></i></button>
+		<button onclick="execCmd('justifyFull');"><i class="fa fa-align-justify"></i></button>
+		<button onclick="execCmd('justifyRight');"><i class="fa fa-align-right"></i></button>
+		<button onclick="execCmd('indent');"><i class="fa fa-indent"></i></button>
+		<button onclick="execCmd('outdent');"><i class="fa fa-dedent"></i></button>
+		<button onclick="execCmd('cut');"><i class="fa fa-cut"></i></button>
+		<button onclick="execCmd('copy');"><i class="fa fa-copy"></i></button>
+		<button onclick="execCmd('insertParagraph');"><i class="fa fa-paragraph"></i></button>
+		<br/>
+		<button onclick="execCmd('insertOrderedList');"><i class="fa fa-list-ol"></i></button>
+		<button onclick="execCmd('insertUnorderedList');"><i class="fa fa-list-ul"></i></button>
+		<button onclick="execCmd('undo');"><i class="fa fa-undo"></i></button>
+		<button onclick="execCmd('redo');"><i class="fa fa-repeat"></i></button>
+		<button onclick="execCmd('insertHorizontalRule');">HR</button>
+		<button onclick="execCmdLink('createLink');"><i class="fa fa-link" ></i></button>
+		<button onclick="execCmd('unlink');"><i class="fa fa-unlink" ></i></button>
+		<button onclick="toggleSource('showCode');"><i class="fa fa-code" ></i></button>
+		<button onclick="execCmdImage('insertImage');"><i class="fa fa-file-image-o" ></i></button>
+		<select onchange="execCmdImageControl('imageSize', this.value);">
+			<option value="100px">100px</option>			
+			<option value="200px">200px</option>			
+			<option value="250px">250px</option>			
+			<option value="300px">300px</option>			
+			<option value="350px">350px</option>			
+			<option value="400px">400px</option>		
+		</select>
+		Font Color: <input type="color" onchange="execCommandWithArg('foreColor', this.value);"/>
+		Background: <input type="color" onchange="execCommandWithArg('hiliteColor', this.value);"/>
+	</div>
+	<!-- <form onsubmit="writeToFile(this['textField'].value)"> -->
+		<iframe id="myIframe" name="textField" style="width: 700px; height: 400px;"></iframe> <br/>
+		<button onclick="toggleEdit('')">Toggle Edit</button>
+		<button onclick="execCmd('selectAll');">Select All</button>
+		<button id="save-btn">Save</button>
+		<button onclick="writeTextFile();" id="create">To Text</button>
+		<button onclick="printSource();">Print Source</button>
+		<!-- <input type="submit" value="SAVE"> -->
+	<!-- </form> -->
+	
+	
+	<script type="text/javascript">
+		var showCode = false;
+		var isInEditMode = true;
+		
+		function enableEditMode() {
+			textField.document.designMode = "On";
+		}
+		function execCmd(command) {
+			textField.document.execCommand(command, false, null);
+		}
+		function execCmdLink(command) {
+			let url = prompt("Enter web URL here: ", "https://");
+			textField.document.execCommand(command, false, url);
+			const links = textField.document.querySelectorAll('a');
+			links.forEach(function(item){
+				item.target = "_blank";
+				item.addEventListener('mouseover', function(){
+					textField.document.designMode = "Off";
+				});
+				item.addEventListener('mouseout', function(){
+					textField.document.designMode = "On";
+				});
+			});
+		}
+		function execCmdImage(command) {		
+			let url = prompt("Enter image URL here: ", "");
+			textField.document.execCommand(command, false, url);
+			const imgs = textField.document.querySelectorAll('img');
+			imgs.forEach(function(item){
+				item.style.maxWidth = "200px";
+			});
+		}
+		function execCmdImageControl(command, arg) {
+			let imgs = textField.document.querySelectorAll('img');
+			textField.document.execCommand(command, false, arg);
+			imgs.forEach(function(item){
+				item.style.maxWidth = arg;
+			});
+		}
+		function execCommandWithArg(command, arg) {
+			textField.document.execCommand(command, false, arg);
+		}
+		function toggleSource() {
+			if (showCode) {
+				textField.document.getElementsByTagName('body')[0].innerHTML = textField.document.getElementsByTagName('body')[0].textContent;
+				showCode = false;
+			}
+			else {
+				textField.document.getElementsByTagName('body')[0].textContent = textField.document.getElementsByTagName('body')[0].innerHTML;
+				showCode = true;
+			}
+		}
+		function toggleEdit() {
+			if (isInEditMode) {
+				textField.document.designMode = "Off"
+				isInEditMode = false;
+			}
+			else {
+				textField.document.designMode = "On"
+				isIneditMode = true;
+			}
+		}
+		$("#save-btn").click(function(){
+			var content = textField.document.body.innerHTML;
+			var blob = new Blob ([content], {type:"text/plain; charset=utf-8"});
+			saveAs(blob, "textfield.txt");
+		});
+		
+		function () {
+			var textFile = null,
+				makeTextFile = function (text) {
+			    	var data = new Blob([text], {type: 'text/plain'});
+				    if (textFile !== null) {
+				      window.URL.revokeObjectURL(textFile);
+				    }
+				    textFile = window.URL.createObjectURL(data);
+				    return textFile;
+				};
+
+			var create = document.getElementById('create'),
+			    textbox = textField.document.getElementById('myIframe');
+
+			    create.addEventListener('click', function () {
+			    var link = document.createElement('a');
+			    link.setAttribute('download', 'info.txt');
+			    link.href = makeTextFile(myIframe.value);
+			    document.body.appendChild(link);
+
+			    window.requestAnimationFrame(function () {
+			    var event = new MouseEvent('click');
+			    link.dispatchEvent(event);
+			    document.body.removeChild(link);
+			});
+			    
+			  }, false);
+		};
+			
+
+		function printSource() {
+            var content = textField.document.body.innerHTML;
+            alert("Frame content: " + content);
+            
+        }   
+		
+	</script>
+</body>
+</html>

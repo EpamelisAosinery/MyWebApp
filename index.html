@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Version 4 Rich Text Editor</title>
+	<title>Rich Text Editor</title>
 	<!-- <link rel="stylesheet" href="../css/version3.css"> -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<script src="https://use.fontawesome.com/aac5c45839.js"></script>
@@ -10,6 +10,7 @@
 		width: 110px;
 		}
 	</style>
+	<script src="js/filesaver.js"></script>
 </head>
 <body onload="enableEditMode();">
 	<div>
@@ -57,11 +58,14 @@
 		<button onclick="execCmd('insertUnorderedList');"><i class="fa fa-list-ul"></i></button>
 		<button onclick="execCmd('undo');"><i class="fa fa-undo"></i></button>
 		<button onclick="execCmd('redo');"><i class="fa fa-repeat"></i></button>
+		<label>
+			<i class="fa fa-file-image-o"></i>
+			<input onchange="execCmdImage(event);" type="file" id="ImgUpload" name="imgFile" accept="image/png, image/jpeg"  style="display:none"></input>
+		</label>
 		<button onclick="execCmd('insertHorizontalRule');">HR</button>
 		<button onclick="execCmdLink('createLink');"><i class="fa fa-link" ></i></button>
 		<button onclick="execCmd('unlink');"><i class="fa fa-unlink" ></i></button>
 		<button onclick="toggleSource('showCode');"><i class="fa fa-code" ></i></button>
-		<button onclick="execCmdImage('insertImage');"><i class="fa fa-file-image-o" ></i></button>
 		<select onchange="execCmdImageControl('imageSize', this.value);">
 			<option value="100px">100px</option>			
 			<option value="200px">200px</option>			
@@ -73,16 +77,14 @@
 		Font Color: <input type="color" onchange="execCommandWithArg('foreColor', this.value);"/>
 		Background: <input type="color" onchange="execCommandWithArg('hiliteColor', this.value);"/>
 	</div>
-	<iframe name="textField" style="width: 900px; height: 400px;"></iframe>
-	<div>
+		<iframe id="myIframe" name="textField" style="width: 700px; height: 400px;"></iframe> <br/>
 		<button onclick="toggleEdit('')">Toggle Edit</button>
 		<button onclick="execCmd('selectAll');">Select All</button>
-		<input type="submit" name="submitFile" id="subFile" value="Submit" onclick="">
-	</div>
+		<button onclick="writeTextFile();">Save</button>	
+		
 	<script type="text/javascript">
 		var showCode = false;
 		var isInEditMode = true;
-		
 		function enableEditMode() {
 			textField.document.designMode = "On";
 		}
@@ -103,20 +105,22 @@
 				});
 			});
 		}
-		function execCmdImage(command) {		
-			let url = prompt("Enter image URL here: ", "");
-			textField.document.execCommand(command, false, url);
-			const imgs = textField.document.querySelectorAll('img');
-			imgs.forEach(function(item){
-				item.style.maxWidth = "200px";
-			});
-		}
-		function execCmdImageControl(command, arg) {
-			let imgs = textField.document.querySelectorAll('img');
-			textField.document.execCommand(command, false, arg);
-			imgs.forEach(function(item){
-				item.style.maxWidth = arg;
-			});
+		function execCmdImage(event) {		
+			console.log(event);
+			if (event.target.files && event.target.files[0]) {
+				var reader = new FileReader();
+				var output = document.createElement("img");
+				var iframe = document.getElementById("myIframe");
+				var doc = iframe.contentDocument || iframe.contentWindow.document;
+				output.id = "output";
+				output.setAttribute("width", "100px");
+				reader.onload = function () {
+					output.src = reader.result;
+					console.log(reader.result);
+				};
+				reader.readAsDataURL(event.target.files[0]);
+				doc.body.appendChild(output);
+			}
 		}
 		function execCommandWithArg(command, arg) {
 			textField.document.execCommand(command, false, arg);
@@ -141,8 +145,10 @@
 				isIneditMode = true;
 			}
 		}
-		function submitFile() {
-
+		function writeTextFile() {
+			var data = textField.document.body.innerHTML;
+			var blob = new Blob([data], {type: "text/plain;charset=utf-8"});
+			saveAs(blob, "datafile.html");
 		}
 	</script>
 </body>
